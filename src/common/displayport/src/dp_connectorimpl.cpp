@@ -1450,9 +1450,10 @@ bool ConnectorImpl::compoundQueryAttachMSTIsDscPossible
     {
         if (dev && dev->isDSCPossible())
         {
-            if ((dev->devDoingDscDecompression != dev) ||
-                ((dev->devDoingDscDecompression == dev) &&
-                (dev->isLogical() && dev->parent)))
+            if (dev->parent &&
+                ((dev->devDoingDscDecompression != dev) ||
+                 ((dev->devDoingDscDecompression == dev) &&
+                 (dev->isLogical() && dev->parent))))
             {
                 //
                 // If DSC decoding is going to happen at sink's parent or
@@ -1546,7 +1547,15 @@ bool ConnectorImpl::compoundQueryAttachMSTDsc(Group * target,
     dpMemZero(&dscInfo, sizeof(DSC_INFO));
     dpMemZero(&warData, sizeof(WAR_DATA));
 
-    // Populate DSC related info for PPS calculations
+    /// Populate DSC related info for PPS calculations
+    if (!dev->devDoingDscDecompression)
+    {
+      //
+      // Device torn down during query - DSC no longer valid.
+      // This can happen during hotplug disconnection race conditions.
+      //
+      return false;
+    }
     populateDscCaps(&dscInfo, dev->devDoingDscDecompression, pDscParams->forcedParams);
 
     // populate modeset related info for PPS calculations
