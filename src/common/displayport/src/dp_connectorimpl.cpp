@@ -1450,8 +1450,21 @@ bool ConnectorImpl::compoundQueryAttachMSTIsDscPossible
     {
         if (dev && dev->isDSCPossible())
         {
-            if (dev->parent &&
-                ((dev->devDoingDscDecompression != dev) ||
+            Address::StringBuffer sb;
+            DP_USED(sb);
+            DP_PRINTF(DP_INFO, "DP-CONN> dev->devDoingDscDecompression: %p addr=%s peerDevice=%u plugged=%d multistream=%d videoSink=%d audioSink=%d bDSCPossible=%d bFECSupported=%d",
+                      dev->devDoingDscDecompression,
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->address.toString(sb) : "NULL",
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->peerDevice : 0,
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->plugged : 0,
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->multistream : 0,
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->videoSink : 0,
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->audioSink : 0,
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->bDSCPossible : 0,
+                      dev->devDoingDscDecompression ? dev->devDoingDscDecompression->bFECSupported : 0);
+            
+            if (((dev->devDoingDscDecompression != NULL &&
+                   dev->devDoingDscDecompression != dev) ||
                  ((dev->devDoingDscDecompression == dev) &&
                  (dev->isLogical() && dev->parent))))
             {
